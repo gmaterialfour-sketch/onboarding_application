@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Onboarding Engine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #0891b2;
+            --bg: #0f172a;
+            --card-bg: #172033;
+            --text: #f8fafc;
+            --accent: #f59e0b;
+            --danger: #fca5a5;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, var(--accent), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p { color: #94a3b8; margin-bottom: 2rem; }
+
+        label {
+            display: block;
+            margin-bottom: 0.8rem;
+            color: #cbd5e1;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: #94a3b8;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.5);
+        }
+
+        .errors {
+            border: 1px solid rgba(252, 165, 165, 0.45);
+            background: rgba(127, 29, 29, 0.24);
+            color: var(--danger);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="glass-card">
+            <h1>Solar Onboarding Engine</h1>
+            <p>Upload the client onboarding workbook to download the generated Excel and SQL package.</p>
+            {% if errors %}
+                <div class="errors">
+                    {% for field, messages in errors.items %}
+                        <strong>{{ field }}</strong><br>
+                        {% if messages|length %}
+                            {% for message in messages %}
+                                {{ message }}<br>
+                            {% endfor %}
+                        {% else %}
+                            {{ messages }}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="real_data">Site Data (Excel)</label>
+                <input type="file" name="real_data" id="real_data" required>
+                
+                <button type="submit">Generate Output Package</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
