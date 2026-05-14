@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Onboarding Engine</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="shell">
+        <section class="hero">
+            <p class="eyebrow">Excel to PostgreSQL onboarding</p>
+            <h1>Solar Onboarding Engine</h1>
+            <p class="summary">
+                Upload a client onboarding workbook and generate standardized asset hierarchy,
+                telemetry mappings, MQTT mappings, Excel output, and SQL insert scripts.
+            </p>
+        </section>
+
+        <section class="panel">
+            <form id="upload-form">
+                <label for="backend-url">Django backend URL</label>
+                <input id="backend-url" type="url" value="http://127.0.0.1:8002" placeholder="https://your-backend.example.com">
+
+                <label for="party-id">Party ID</label>
+                <input id="party-id" type="text" value="SEKURA">
+
+                <label for="site-ref-key">Site Ref Key</label>
+                <input id="site-ref-key" type="text" placeholder="Optional, example BEPL_SITE001">
+
+                <label for="file">Client onboarding Excel</label>
+                <input id="file" name="file" type="file" accept=".xlsx,.xlsm" required>
+
+                <div class="actions">
+                    <button type="submit">Generate Output Package</button>
+                    <button type="button" id="validate-btn" class="secondary">Validate Only</button>
+                </div>
+            </form>
+
+            <div id="status" class="status">
+                Ready. Netlify hosts this page; Django must run separately for Excel processing.
+            </div>
+        </section>
+
+        <section class="flow">
+            <div>Client Excel</div>
+            <span>→</span>
+            <div>Python Logic</div>
+            <span>→</span>
+            <div>Standardized Data</div>
+            <span>→</span>
+            <div>Hierarchy</div>
+            <span>→</span>
+            <div>SQL</div>
+            <span>→</span>
+            <div>Database</div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
