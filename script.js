@@ -1,6 +1,7 @@
 const form = document.getElementById("upload-form");
 const statusBox = document.getElementById("status");
 const submitButton = form.querySelector("button");
+const DEFAULT_BACKEND_URL = "http://127.0.0.1:8002";
 
 function showStatus(message, type) {
     statusBox.hidden = false;
@@ -34,7 +35,8 @@ form.addEventListener("submit", async (event) => {
     submitButton.textContent = "Processing...";
 
     try {
-        const backendUrl = document.getElementById("backend-url").value.replace(/\/$/, "");
+        const configuredBackend = document.getElementById("backend-url").value || DEFAULT_BACKEND_URL;
+        const backendUrl = configuredBackend.replace(/\/$/, "");
         const response = await fetch(`${backendUrl}/api/onboarding/process/`, {
             method: "POST",
             body: buildPayload(),
@@ -65,7 +67,10 @@ form.addEventListener("submit", async (event) => {
         URL.revokeObjectURL(downloadUrl);
         hideStatus();
     } catch (error) {
-        showStatus(error.message, "error");
+        const message = error.message === "Failed to fetch"
+            ? "Backend not reachable. Start Django on http://127.0.0.1:8002 or deploy Django and set that backend URL in index.html."
+            : error.message;
+        showStatus(message, "error");
     } finally {
         submitButton.disabled = false;
         submitButton.textContent = "Download Output";
