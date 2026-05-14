@@ -1,66 +1,47 @@
 const form = document.getElementById("upload-form");
-const validateButton = document.getElementById("validate-btn");
 const statusBox = document.getElementById("status");
+const submitButton = form.querySelector("button");
 
-function setStatus(message, type = "") {
-    statusBox.className = `status ${type}`.trim();
+function showStatus(message, type) {
+    statusBox.hidden = false;
+    statusBox.className = `status ${type}`;
     statusBox.textContent = message;
 }
 
-function getBackendUrl() {
-    return document.getElementById("backend-url").value.replace(/\/$/, "");
+function hideStatus() {
+    statusBox.hidden = true;
+    statusBox.textContent = "";
 }
 
 function buildPayload() {
     const file = document.getElementById("file").files[0];
-    const partyId = document.getElementById("party-id").value.trim();
-    const siteRefKey = document.getElementById("site-ref-key").value.trim();
     const payload = new FormData();
 
     if (!file) {
-        throw new Error("Please choose an onboarding Excel file.");
+        throw new Error("Select Excel file.");
     }
 
     payload.append("file", file);
-    payload.append("party_id", partyId || "SEKURA");
-    payload.append("site_ref_key", siteRefKey);
+    payload.append("party_id", document.getElementById("party-id").value || "SEKURA");
+    payload.append("site_ref_key", document.getElementById("site-ref-key").value || "");
     return payload;
 }
 
-async function validateWorkbook() {
-    try {
-        setStatus("Validating workbook...");
-        const response = await fetch(`${getBackendUrl()}/api/onboarding/validate/`, {
-            method: "POST",
-            body: buildPayload(),
-        });
-        const data = await response.json();
-
-        if (!response.ok || !data.ok) {
-            throw new Error((data.errors || ["Validation failed."]).join(" "));
-        }
-
-        const sheets = Object.entries(data.result.sheets)
-            .map(([name, count]) => `${name}: ${count} rows`)
-            .join(", ");
-        setStatus(`Workbook is valid. ${sheets}`, "ok");
-    } catch (error) {
-        setStatus(error.message, "error");
-    }
-}
-
-async function generatePackage(event) {
+form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    hideStatus();
+    submitButton.disabled = true;
+    submitButton.textContent = "Processing...";
 
     try {
-        setStatus("Generating Excel and SQL package...");
-        const response = await fetch(`${getBackendUrl()}/api/onboarding/process/`, {
+        const backendUrl = document.getElementById("backend-url").value.replace(/\/$/, "");
+        const response = await fetch(`${backendUrl}/api/onboarding/process/`, {
             method: "POST",
             body: buildPayload(),
         });
 
         if (!response.ok) {
-            let message = "Package generation failed.";
+            let message = "Output generation failed.";
             try {
                 const data = await response.json();
                 message = (data.errors || [message]).join(" ");
@@ -75,17 +56,18 @@ async function generatePackage(event) {
         const link = document.createElement("a");
         const disposition = response.headers.get("Content-Disposition") || "";
         const match = disposition.match(/filename="?([^"]+)"?/);
+
         link.href = downloadUrl;
         link.download = match ? match[1] : "onboarding_output.zip";
         document.body.appendChild(link);
         link.click();
         link.remove();
         URL.revokeObjectURL(downloadUrl);
-        setStatus("Package generated. Download started.", "ok");
+        hideStatus();
     } catch (error) {
-        setStatus(error.message, "error");
+        showStatus(error.message, "error");
+    } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = "Download Output";
     }
-}
-
-form.addEventListener("submit", generatePackage);
-validateButton.addEventListener("click", validateWorkbook);
+});
