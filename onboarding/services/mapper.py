@@ -12,9 +12,9 @@ def derive_site_ref_key(workbook):
     site_name = workbook.site_details.get("SITE_NAME") or workbook.site_details.get("CUSTOMER") or "SITE"
     text = clean_text(site_name).upper()
     if "BEEMPOW" in text or "BEPL" in text:
-        return "BEPL_SITE001"
+        return "BEPL_SITE1"
     acronym = "".join(word[0] for word in re.findall(r"[A-Z0-9]+", text)[:3]) or "SITE"
-    return f"{slug_key(acronym, 'SITE')}_SITE001"
+    return f"{slug_key(acronym, 'SITE')}_SITE1"
 
 
 def build_normalized_tables(workbook, party_id="SEKURA", site_ref_key=None):

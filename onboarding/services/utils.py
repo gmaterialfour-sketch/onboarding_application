@@ -82,4 +82,4 @@ class KeyGenerator:
 
     def next(self, prefix):
         self._counters[prefix] += 1
-        return f"{prefix}{self._counters[prefix]:03d}"
+        return f"{prefix}{self._counters[prefix]}"

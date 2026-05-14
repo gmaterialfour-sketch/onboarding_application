@@ -66,7 +66,7 @@ def generate_assets(workbook, party_id, site_ref_key):
     if inv_df is not None:
         for block in sorted({clean_text(v) for v in inv_df.get("Block wise name", []) if clean_text(v)}, key=_block_sort):
             block_num = _block_sort(block)
-            block_key = f"{site_ref_key}_BLK{block_num:03d}" if block_num != 99999 else f"{site_ref_key}_{keygen.next('BLK')}"
+            block_key = f"{site_ref_key}_BLK{block_num}" if block_num != 99999 else f"{site_ref_key}_{keygen.next('BLK')}"
             block_keys[block] = add_asset(block_key, "BLOCK", block, site_ref_key, block)
 
         for _, row in inv_df.iterrows():
@@ -95,7 +95,7 @@ def generate_assets(workbook, party_id, site_ref_key):
                 string_count = parse_int(row.get(suffix), 0)
                 scb_key = add_asset(f"{mod_key}_{keygen.next('SCB')}", "SCB", scb_name, mod_key, scb_name)
                 for string_idx in range(1, string_count + 1):
-                    add_asset(f"{scb_key}_STR{string_idx:03d}", "STRING", f"{scb_name}-STRING-{string_idx}", scb_key, scb_name, "N")
+                    add_asset(f"{scb_key}_STR{string_idx}", "STRING", f"{scb_name}-STRING-{string_idx}", scb_key, scb_name, "N")
 
     _add_pv_modules(workbook, party_id, site_ref_key, assets, hierarchy, attributes, add_asset, keygen)
     _add_meter_assets(workbook, party_id, site_ref_key, add_asset, equipment, keygen)
