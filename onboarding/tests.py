@@ -4,6 +4,7 @@ from tempfile import TemporaryDirectory
 import pandas as pd
 from django.test import SimpleTestCase, override_settings
 
+from .services.hierarchy import generate_assets
 from .services.pipeline import process_onboarding_file
 
 
@@ -80,5 +81,37 @@ class OnboardingPipelineTests(SimpleTestCase):
             self.assertGreater(result["summary"]["sheets"]["asset_master"], 5)
             self.assertIn("mqtt_mapping", result["tables"])
             self.assertIn("INSERT INTO ods.asset_master", result["sql_path"].read_text(encoding="utf-8"))
+
+    def test_mod_numbering_resets_for_each_inverter(self):
+        workbook = type(
+            "Workbook",
+            (),
+            {
+                "site_details": {"SITE_NAME": "Demo Solar Plant"},
+                "sheets": {
+                    "Inverter": pd.DataFrame(
+                        [
+                            {"ITS--INV-M": "ITS-1-INV-85-M1", "Inverter Name": "Inverter 85", "Block wise name": "B-43"},
+                            {"ITS--INV-M": "ITS-1-INV-85-M2", "Inverter Name": "Inverter 85", "Block wise name": "B-43"},
+                            {"ITS--INV-M": "ITS-1-INV-86-M1", "Inverter Name": "Inverter 86", "Block wise name": "B-43"},
+                            {"ITS--INV-M": "ITS-1-INV-86-M2", "Inverter Name": "Inverter 86", "Block wise name": "B-43"},
+                        ]
+                    )
+                },
+            },
+        )()
+
+        result = generate_assets(workbook, "TEST", "BEPL_SITE1")
+        mod_keys = [asset["asset_ref_key"] for asset in result["assets"] if asset["asset_class_key"] == "MOD"]
+
+        self.assertEqual(
+            mod_keys,
+            [
+                "BEPL_SITE1_BLK43_INV1_MOD1",
+                "BEPL_SITE1_BLK43_INV1_MOD2",
+                "BEPL_SITE1_BLK43_INV2_MOD1",
+                "BEPL_SITE1_BLK43_INV2_MOD2",
+            ],
+        )
 
 # Create your tests here.

@@ -61,6 +61,7 @@ def generate_assets(workbook, party_id, site_ref_key):
     block_keys = {}
     inv_keys = {}
     mod_keys = {}
+    inv_mod_counts = {}
 
     inv_df = workbook.sheets.get("Inverter")
     if inv_df is not None:
@@ -83,7 +84,8 @@ def generate_assets(workbook, party_id, site_ref_key):
                 inv_keys[inv_base] = add_asset(inv_key, "INVERTER", inv_name, block_key, inv_base)
                 equipment.append(_equipment_row(party_id, site_ref_key, "Inverter", row))
 
-            mod_key = f"{inv_key}_{keygen.next('MOD')}"
+            inv_mod_counts[inv_base] = inv_mod_counts.get(inv_base, 0) + 1
+            mod_key = f"{inv_key}_MOD{inv_mod_counts[inv_base]}"
             mod_keys[clean_text(mod_source)] = add_asset(mod_key, "MOD", mod_source or mod_key, inv_key, mod_source)
             _append_attribute_rows(attributes, party_id, mod_key, row, ["Make", "Model", "Controller Ids", "Inverter Capacity AC (kW)", "Inverter DC Loading (kW) / MOD"])
 
